@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.core.salesOrder.mapper.LinesMapper">
+
+    <resultMap id="lineResultMap" type="hbi.core.salesOrder.dto.Lines">
+        <id column="line_id" property="lineId"/>
+        <result column="header_id" property="headerId"/>
+        <result column="line_number" property="lineNumber"/>
+        <result column="inventory_item_id" property="inventoryItemId"/>
+        <result column="orderd_quantity" property="orderdQuantity"/>
+        <result column="order_quantity_uom" property="orderQuantityUom"/>
+        <result column="unit_selling_price" property="unitSellingPrice"/>
+        <result column="description" property="description"/>
+        <result column="company_id" property="companyId"/>
+        <result column="addition1" property="addition1"/>
+        <result column="addition2" property="addition2"/>
+        <result column="addition3" property="addition3"/>
+        <result column="addition4" property="addition4"/>
+        <result column="addition5" property="addition5"/>
+        <result column="object_version_number" property="objectVersionNumber"/>
+        <result column="request_id" property="requestId"/>
+        <result column="program_id" property="programId"/>
+        <result column="creation_date" property="creationDate"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="last_updated_by" property="lastUpdatedBy"/>
+        <result column="last_update_date" property="lastUpdateDate"/>
+        <result column="last_update_login" property="lastUpdateLogin"/>
+        <result column="item_code" property="itemCode"/>
+        <result column="item_description" property="itemDescription"/>
+    </resultMap>
+
+    <select id="queryByHeaderId" resultMap="lineResultMap" parameterType="java.lang.Long">
+        select
+        l.*,
+        i.item_code,
+        i.item_description
+        from hap_dev.hap_om_order_lines l
+        join hap_dev.hap_inv_inventory_items i
+        on l.inventory_item_id = i.inventory_item_id
+        <where>
+            header_id = #{headerId}
+        </where>
+    </select>
+
+    <select id="checkLineNumber" parameterType="java.lang.Long">
+        select
+        count(1)
+        from hap_dev.hap_om_order_lines
+        <where>
+            line_number = #{lineNumber}
+        </where>
+    </select>
+
+    <insert id="addLine" parameterType="hbi.core.salesOrder.dto.Lines" useGeneratedKeys="true" keyProperty="lineId">
+        insert into hap_dev.hap_om_order_lines(
+        header_id,
+        line_number,
+        inventory_item_id,
+        orderd_quantity,
+        order_quantity_uom,
+        unit_selling_price,
+        description,
+        company_id,
+        addition1,
+        addition2,
+        addition3,
+        addition4,
+        addition5)
+        value(
+        #{headerId},
+        #{lineNumber},
+        #{inventoryItemId},
+        #{orderdQuantity},
+        #{orderQuantityUom},
+        #{unitSellingPrice},
+        #{description},
+        #{companyId},
+        #{addition1},
+        #{addition2},
+        #{addition3},
+        #{addition4},
+        #{addition5}
+        )
+    </insert>
+
+    <update id="editLine" parameterType="hbi.core.salesOrder.dto.Lines">
+        update hap_dev.hap_om_order_lines
+        <set>
+            <if test="headerId!=null">
+                header_id = #{headerId},
+            </if>
+            <if test="lineNumber!=null">
+                line_number = #{lineNumber},
+            </if>
+            <if test="inventoryItemId!=null">
+                inventory_item_id = #{inventoryItemId},
+            </if>
+            <if test="orderdQuantity!=null">
+                orderd_quantity = #{orderdQuantity},
+            </if>
+            <if test="orderQuantityUom!=null and &quot;&quot;.equals(orderQuantityUom.trim())">
+                order_quantity_uom = #{orderQuantityUom},
+            </if>
+            <if test="unitSellingPrice!=null">
+                unit_selling_price = #{unitSellingPrice},
+            </if>
+            <if test="description!=null and &quot;&quot;.equals(description.trim())">
+                description = #{description},
+            </if>
+            <if test="companyId!=null">
+                company_id = #{companyId},
+            </if>
+            <if test="addition1!=null and &quot;&quot;.equals(addition1.trim())">
+                addition1 = #{addition1},
+            </if>
+            <if test="addition2!=null and &quot;&quot;.equals(addition2.trim())">
+                addition2 = #{addition2},
+            </if>
+            <if test="addition3!=null and &quot;&quot;.equals(addition3.trim())">
+                addition3 = #{addition3},
+            </if>
+            <if test="addition4!=null and &quot;&quot;.equals(addition4.trim())">
+                addition4 = #{addition4},
+            </if>
+            <if test="addition5!=null and &quot;&quot;.equals(addition5.trim())">
+                addition5 = #{addition5},
+            </if>
+        </set>
+        <where>
+            line_id = #{lineId}
+        </where>
+    </update>
+
+    <delete id="delByHeaderId" parameterType="java.lang.Long">
+        delete from hap_dev.hap_om_order_lines
+        <where>
+            header_id = #{headerId}
+        </where>
+    </delete>
+
+    <delete id="delByLineId" parameterType="java.lang.Long">
+        delete from hap_dev.hap_om_order_lines
+        <where>
+            line_id = #{lineId}
+        </where>
+    </delete>
+
+</mapper>

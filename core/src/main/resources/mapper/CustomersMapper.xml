@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.core.salesOrder.mapper.CustomersMapper">
+
+    <resultMap id="customerRusultMap" type="hbi.core.salesOrder.dto.Customers">
+        <id column="customer_id" property="customerId"/>
+        <result column="customer_number" property="customerNumber"/>
+        <result column="customer_name" property="customerName"/>
+    </resultMap>
+
+    <select id="queryByParams" resultMap="customerRusultMap" parameterType="hbi.core.salesOrder.dto.Customers">
+        select
+        customer_id,
+        customer_number,
+        customer_name
+        from hap_dev.hap_ar_customers
+        <where>
+            <if test="companyId != null">
+                AND customers.company_id = #{companyId}
+            </if>
+            <if test="customerNumber != null and &quot;&quot;.equals(customerNumber.trim())">
+                and customer_number regexp #{customerNumber},
+            </if>
+            <if test="customerName != null and &quot;&quot;.equals(customerName.trim())">
+                and customer_name regexp #{customerName},
+            </if>
+        </where>
+    </select>
+
+</mapper>

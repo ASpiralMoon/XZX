@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.core.salesOrder.mapper.HeadersMapper">
+
+    <resultMap id="headersResultMap" type="hbi.core.salesOrder.dto.Headers">
+        <id column="header_id" property="headerId"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="company_id" property="companyId"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="object_version_number" property="objectVersionNumber"/>
+        <result column="request_id" property="requestId"/>
+        <result column="program_id" property="programId"/>
+        <result column="creation_date" property="creationDate"/>
+        <result column="created_by" property="createBy"/>
+        <result column="last_updated_by" property="lastUpdateBy"/>
+        <result column="last_update_date" property="lastUpdateDate"/>
+        <result column="last_update_login" property="getLastUpdateLogin"/>
+        <result column="attribute_category" property="attributeCategory"/>
+        <result column="company_name" property="companyName"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="inventory_item_id" property="inventoryItemId"/>
+        <result column="orderd_quantity" property="orderdQuantity"/>
+        <result column="order_quantity_uom" property="orderQuantityUom"/>
+        <result column="unit_selling_price" property="unitSellingPrice"/>
+        <result column="description" property="description"/>
+        <result column="order_amount" property="orderAmount"/>
+    </resultMap>
+
+    <sql id="baseQuery">
+        select
+        h.header_id,
+        h.company_id,
+        h.customer_id,
+        h.order_number,
+        h.order_date,
+        h.order_status,
+        h.creation_date,
+        com.company_name,
+        cus.customer_name,
+        l.line_id,
+        l.inventory_item_id,
+        l.orderd_quantity,
+        l.order_quantity_uom,
+        l.unit_selling_price,
+        l.description,
+        sum(l.orderd_quantity * l.unit_selling_price) order_amount
+        from
+        hap_dev.hap_om_order_headers h
+        join hap_dev.hap_org_companys com on h.company_id = com.company_id
+        join hap_dev.hap_ar_customers cus on h.customer_id = cus.customer_id
+        join hap_dev.hap_om_order_lines l on h.header_id = l.header_id
+    </sql>
+
+    <select id="queryByParam" resultMap="headersResultMap" parameterType="hbi.core.salesOrder.dto.Headers">
+        <include refid="baseQuery"/>
+        <where>
+            <if test="companyId!=null">
+                and h.company_id = #{companyId}
+            </if>
+            <if test="customerId!=null">
+                and h.customer_id = #{customerId}
+            </if>
+            <if test="headerId!=null">
+                and l.header_id = #{headerId}
+            </if>
+            <if test="inventoryItemId!=null">
+                and l.INVENTORY_ITEM_ID = #{inventoryItemId}
+            </if>
+            <if test="orderStatus!=null and &quot;&quot;.equals(orderStatus.trim())">
+                and h.order_status = #{orderStatus}
+            </if>
+        </where>
+        group by h.header_id
+    </select>
+
+    <select id="queryAll" resultMap="headersResultMap">
+        <include refid="baseQuery"/>
+        group by h.header_id
+    </select>
+
+    <select id="queryById" resultMap="headersResultMap" parameterType="java.lang.Long">
+        <include refid="baseQuery"/>
+        <where>
+            h.header_id = #{headerId}
+        </where>
+    </select>
+
+    <insert id="addHeader" parameterType="hbi.core.salesOrder.dto.Headers" useGeneratedKeys="true"
+            keyProperty="headerId">
+        insert into hap_dev.hap_om_order_headers(
+        order_number,
+        company_id,
+        order_date,
+        order_status,
+        customer_id
+        )
+        value (
+        #{orderNumber},
+        #{companyId},
+        #{orderDate},
+        #{orderStatus},
+        #{customerId}
+        )
+    </insert>
+
+    <update id="editHeader" parameterType="hbi.core.salesOrder.dto.Headers">
+        update hap_dev.hap_om_order_headers
+        <set>
+            <if test="orderNumber!=null ">
+                and order_number = #{orderNumber}
+            </if>
+            <if test="orderStatus!=null and &quot;&quot;.equals(orderStatus.trim())">
+                and order_status = #{orderStatus}
+            </if>
+            <if test="companyId!=null">
+                and company_id = #{companyId}
+            </if>
+            <if test="customerId!=null ">
+                and customer_id = #{customerId}
+            </if>
+            object_version_number = object_version_number + 1
+        </set>
+        <where>
+            header_id = #{headerId}
+            and object_version_number = #{objectVersionNumber};
+        </where>
+    </update>
+
+    <delete id="delHeader" parameterType="java.lang.Long">
+        delete from hap_dev.hap_om_order_headers
+        <where>
+            header_id = #{headerId}
+        </where>
+    </delete>
+
+</mapper>
